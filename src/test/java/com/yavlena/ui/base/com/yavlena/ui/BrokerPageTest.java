@@ -13,14 +13,12 @@ public class BrokerPageTest extends BaseTest {
     private BrokerPage brokerPage = new BrokerPage();
 
     @Test
-    @Description("Check Brokers Page with search by name")
-    public void checkBrokers() {
-        String prefix = "+359";
+    @Description("Check Brokers Page with search by name Soft assertion")
+    public void checkBrokersAssert() {
 
         brokerPage
                 .open()
                 .clickFindMore();
-
 
         List<String> brokersList = new ArrayList<>();
         brokerPage.getAllBrokers(brokersList);
@@ -28,12 +26,9 @@ public class BrokerPageTest extends BaseTest {
         for (String name : brokersList) {
             brokerPage
                     .searchBrokerByName(name)
-                    .verifyBrokerSearchResults(name, prefix)
+                    .verifyBrokerSearchResults(name)
                     .resetSearch();
         }
-
-
     }
-
 
 }

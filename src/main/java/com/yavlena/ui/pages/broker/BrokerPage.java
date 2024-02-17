@@ -1,13 +1,16 @@
 package com.yavlena.ui.pages.broker;
 
-import com.codeborne.selenide.*;
+import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideElement;
+import com.yavlena.ui.pages.broker.com.yavlena.ui.assertions.BrokerInfoAssertion;
 import io.qameta.allure.Description;
 import io.qameta.allure.Step;
-import org.testng.Assert;
 
 import java.util.List;
 
-import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Condition.disappear;
+import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
@@ -17,7 +20,6 @@ public class BrokerPage {
     private SelenideElement searchField = $("#searchBox:nth-child(2)");
     private ElementsCollection phones = $$("div.tel-group > span > a");
     private SelenideElement propertiesLink = $("div.position > a");
-
     private SelenideElement resetSearch = $("div.filter-bar > button");
     private SelenideElement brokerAddress = $("div.header-group > div");
 
@@ -27,6 +29,7 @@ public class BrokerPage {
     }
 
     @Step
+    @Description("Click find more")
     public BrokerPage clickFindMore() {
         findMore.click();
         return new BrokerPage();
@@ -51,26 +54,6 @@ public class BrokerPage {
         return new BrokerPage();
     }
 
-
-    @Step
-    @Description("Verify Broker Search results")
-    public BrokerPage verifyBrokerSearchResults(String name, String prefix) {
-
-        brokerNames.shouldHave(CollectionCondition.size(1));
-        brokerNames.get(0).shouldHave(exactText(name));
-        brokerAddress.shouldNotBe(empty);
-
-        phones.shouldHave(CollectionCondition.size(2));
-
-        for (SelenideElement phoneNumber : phones) {
-            String number = phoneNumber.getOwnText();
-            Assert.assertTrue(number.startsWith(prefix));
-        }
-
-        propertiesLink.should(matchText(".*\\d+\\s+имота.*"));
-        return this;
-    }
-
     @Step
     @Description("Reset Search")
     public BrokerPage resetSearch() {
@@ -79,5 +62,16 @@ public class BrokerPage {
         return new BrokerPage();
     }
 
+    @Step
+    @Description("Verify Broker Search results")
+    public BrokerPage verifyBrokerSearchResults(String name) {
+        BrokerInfoAssertion brokerInfoAssertion = new BrokerInfoAssertion();
+
+        brokerNames.get(2).should(disappear);
+
+        brokerInfoAssertion.brokerInfoAssert(brokerNames.size(), brokerNames.get(0).getOwnText(), name, brokerAddress.getOwnText(),
+                propertiesLink.getOwnText(), phones);
+        return this;
+    }
 
 }
